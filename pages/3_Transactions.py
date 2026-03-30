@@ -1,14 +1,9 @@
 import streamlit as st
-import pandas as pd
-from services.excel_io import load_workbook, get_transactions_df, save_workbook
+from services.excel_io import get_default_workbook_path, get_transactions_df, load_workbook, replace_transactions
 
 st.title("Transactions")
 
-if "workbook_path" not in st.session_state:
-    st.error("Workbook not loaded.")
-    st.stop()
-
-workbook = load_workbook(st.session_state["workbook_path"])
+workbook = load_workbook(get_default_workbook_path())
 transactions_df = get_transactions_df(workbook)
 
 # Filters
@@ -33,11 +28,6 @@ if not filtered_df.empty:
     selected_indices = st.multiselect("Select transactions to delete", filtered_df.index.tolist())
     if st.button("Delete selected"):
         transactions_df = transactions_df.drop(selected_indices)
-        # Update the workbook
-        sheet = workbook["Transactions"]
-        sheet.delete_rows(2, sheet.max_row)  # Clear existing data
-        for row in transactions_df.itertuples(index=False):
-            sheet.append(row)
-        save_workbook(workbook, st.session_state["workbook_path"])
+        replace_transactions(workbook, transactions_df)
         st.success("Deleted selected transactions")
         st.rerun()

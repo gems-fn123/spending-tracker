@@ -3,7 +3,7 @@ from PIL import Image
 from services.ocr import extract_text
 from services.receipt_parser import parse_receipt_text
 from services.categorizer import suggest_category
-from services.excel_io import load_workbook, append_transaction
+from services.excel_io import append_transaction, get_default_workbook_path, load_workbook
 from paddleocr import PaddleOCR
 import yaml
 
@@ -49,20 +49,17 @@ if "parsed_receipt" in st.session_state:
         submitted = st.form_submit_button("Save transaction")
 
         if submitted:
-            if "workbook_path" not in st.session_state:
-                st.error("Workbook not loaded.")
-            else:
-                workbook = load_workbook(st.session_state["workbook_path"])
-                append_transaction(workbook, {
-                    "date": date,
-                    "merchant": merchant,
-                    "description": merchant,
-                    "amount": amount,
-                    "type": "expense",
-                    "category": category,
-                    "source": "receipt",
-                    "receipt_text": data["raw_text"],
-                    "notes": notes,
-                })
-                st.success("Transaction saved")
-                del st.session_state["parsed_receipt"]
+            workbook = load_workbook(get_default_workbook_path())
+            append_transaction(workbook, {
+                "date": date,
+                "merchant": merchant,
+                "description": merchant,
+                "amount": amount,
+                "type": "expense",
+                "category": category,
+                "source": "receipt",
+                "receipt_text": data["raw_text"],
+                "notes": notes,
+            })
+            st.success("Transaction saved to the workbook")
+            del st.session_state["parsed_receipt"]

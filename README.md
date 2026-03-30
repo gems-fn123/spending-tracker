@@ -14,12 +14,12 @@ A personal finance dashboard with OCR receipt processing, using an Excel workboo
 1. Clone repository
 2. Create virtual env: `python -m venv venv && source venv/bin/activate`
 3. Install deps: `pip install -r requirements.txt`
-4. Run: `streamlit run app.py`
-5. Upload your Excel workbook (ensure it has "Budget Template" and "Transactions" sheets)
+4. Run: `streamlit run streamlit_app.py`
+5. The app will load the committed workbook `Pengeluaran_budget_template.xlsx` automatically
 
 ## Workbook Structure
 - **Budget Template**: Categories and budget amounts
-- **Transactions**: Normalized transaction data (added automatically if missing)
+- **Transactions**: Normalized transaction data (added automatically if missing and updated whenever transactions are saved)
 - **Maret 2026**: Optional presentation sheet
 
 ## OCR Setup
