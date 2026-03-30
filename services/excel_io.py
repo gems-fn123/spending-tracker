@@ -6,7 +6,11 @@ import os
 
 def load_workbook(file_path):
     """Load the Excel workbook."""
-    return openpyxl.load_workbook(file_path)
+    workbook = openpyxl.load_workbook(file_path)
+    # Store source path for compatibility with openpyxl versions
+    # where `Workbook.filename` may not be available.
+    workbook._file_path = file_path
+    return workbook
 
 def get_transactions_df(workbook):
     """Get the Transactions sheet as a DataFrame."""
@@ -17,7 +21,6 @@ def get_transactions_df(workbook):
         headers = ["transaction_id", "date", "month", "merchant", "description", "amount", "type", "category", "subcategory", "source", "receipt_file", "receipt_text", "notes", "created_at"]
         for col, header in enumerate(headers, 1):
             sheet.cell(row=1, column=col, value=header)
-        workbook.save(workbook.filename)  # Save to create the sheet
     sheet = workbook["Transactions"]
     data = list(sheet.values)
     if len(data) <= 1:
@@ -49,7 +52,9 @@ def append_transaction(workbook, transaction_data):
     headers = ["transaction_id", "date", "month", "merchant", "description", "amount", "type", "category", "subcategory", "source", "receipt_file", "receipt_text", "notes", "created_at"]
     row = [transaction_data.get(h, "") for h in headers]
     sheet.append(row)
-    workbook.save(workbook.filename)
+    file_path = getattr(workbook, "_file_path", None)
+    if file_path:
+        workbook.save(file_path)
 
 def save_workbook(workbook, file_path):
     """Save the workbook."""
