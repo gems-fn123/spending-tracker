@@ -1,10 +1,19 @@
 import streamlit as st
-from services.excel_io import get_default_workbook_path, get_transactions_df, load_workbook, replace_transactions
+from pathlib import Path
+from services import excel_io
 
 st.title("Transactions")
 
-workbook = load_workbook(get_default_workbook_path())
-transactions_df = get_transactions_df(workbook)
+
+def get_default_workbook_path():
+    """Resolve workbook path with backward compatibility for older excel_io modules."""
+    if hasattr(excel_io, "get_default_workbook_path"):
+        return excel_io.get_default_workbook_path()
+    return str(Path(__file__).resolve().parent.parent / "Pengeluaran_budget_template.xlsx")
+
+
+workbook = excel_io.load_workbook(get_default_workbook_path())
+transactions_df = excel_io.get_transactions_df(workbook)
 
 # Filters
 st.sidebar.subheader("Filters")
@@ -28,6 +37,6 @@ if not filtered_df.empty:
     selected_indices = st.multiselect("Select transactions to delete", filtered_df.index.tolist())
     if st.button("Delete selected"):
         transactions_df = transactions_df.drop(selected_indices)
-        replace_transactions(workbook, transactions_df)
+        excel_io.replace_transactions(workbook, transactions_df)
         st.success("Deleted selected transactions")
         st.rerun()

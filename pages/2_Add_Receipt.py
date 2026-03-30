@@ -1,9 +1,10 @@
 import streamlit as st
+from pathlib import Path
 from PIL import Image
 from services.ocr import extract_text
 from services.receipt_parser import parse_receipt_text
 from services.categorizer import suggest_category
-from services.excel_io import append_transaction, get_default_workbook_path, load_workbook
+from services import excel_io
 from paddleocr import PaddleOCR
 import yaml
 
@@ -12,6 +13,13 @@ def get_ocr():
     return PaddleOCR(use_angle_cls=True, lang="en")
 
 st.title("Add Receipt")
+
+
+def get_default_workbook_path():
+    """Resolve workbook path with backward compatibility for older excel_io modules."""
+    if hasattr(excel_io, "get_default_workbook_path"):
+        return excel_io.get_default_workbook_path()
+    return str(Path(__file__).resolve().parent.parent / "Pengeluaran_budget_template.xlsx")
 
 # Load categories
 with open("config/categories.yml", "r") as f:
@@ -49,8 +57,8 @@ if "parsed_receipt" in st.session_state:
         submitted = st.form_submit_button("Save transaction")
 
         if submitted:
-            workbook = load_workbook(get_default_workbook_path())
-            append_transaction(workbook, {
+            workbook = excel_io.load_workbook(get_default_workbook_path())
+            excel_io.append_transaction(workbook, {
                 "date": date,
                 "merchant": merchant,
                 "description": merchant,

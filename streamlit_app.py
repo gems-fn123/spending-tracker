@@ -1,16 +1,25 @@
 import streamlit as st
-from services.excel_io import get_default_workbook_path, load_workbook, get_transactions_df, get_budget_df
+from pathlib import Path
+from services import excel_io
 from services.insights import compute_insights
 
 st.set_page_config(page_title="Spending Tracker", layout="wide")
+
+
+def get_default_workbook_path():
+    """Resolve workbook path with backward compatibility for older excel_io modules."""
+    if hasattr(excel_io, "get_default_workbook_path"):
+        return excel_io.get_default_workbook_path()
+    return str(Path(__file__).resolve().parent / "Pengeluaran_budget_template.xlsx")
+
 
 def render_dashboard():
     st.title("Dashboard")
 
     workbook_path = get_default_workbook_path()
-    workbook = load_workbook(workbook_path)
-    transactions_df = get_transactions_df(workbook)
-    budget_df = get_budget_df(workbook)
+    workbook = excel_io.load_workbook(workbook_path)
+    transactions_df = excel_io.get_transactions_df(workbook)
+    budget_df = excel_io.get_budget_df(workbook)
 
     insights = compute_insights(transactions_df, budget_df)
 
