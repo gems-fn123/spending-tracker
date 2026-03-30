@@ -1,0 +1,14 @@
+merchant_rules:
+  - pattern: "indomaret|alfamart|minimarket"
+    category: "Dapur"
+  - pattern: "pertamina|shell|spbu"
+    category: "Bensin + tol"
+  - pattern: "tol|jasa marga"
+    category: "Bensin + tol"
+  - pattern: "warung|restoran|makan"
+    category: "Jajan Mama"
+  - pattern: "sekolah|tk|sd|smp|sma"
+    category: "Anak"
+  - pattern: "apotik|kimia farma"
+    category: "ART"
+  # Add more rules as needed
